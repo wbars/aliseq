@@ -2,36 +2,81 @@ package me.wbars.aliseq.core;
 
 import me.wbars.aliseq.utils.Pair;
 
+import java.math.BigInteger;
+
 import static java.lang.Math.max;
 
 public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
 
     private final Scoring scoring;
+    private final String first;
+    private final String second;
+    private int[][] dp;
+    private int i = 0;
+    private int j = 0;
+    private final BigInteger costsArea;
+    private BigInteger proceedCells = BigInteger.ZERO;
 
-    public NeedlemanWunschAlignmentAlgorithm(Scoring scoring) {
+    public NeedlemanWunschAlignmentAlgorithm(String first, String second, Scoring scoring) {
         this.scoring = scoring;
+        this.first = first;
+        this.second = second;
+        this.dp = new int[first.length() + 1][second.length() + 1];
+        costsArea = BigInteger.valueOf(dp.length).multiply(BigInteger.valueOf(dp[0].length));
     }
 
     @Override
-    public Alignment align(String first, String second) {
-        Pair<String, String> restore = restore(createPrefixesCostsMatrix(first, second), first, second);
+    public Alignment align() {
+        if (!isCostsFilled()) throw new IllegalStateException();
+
+        Pair<String, String> restore = restore(dp, first, second);
         return new Alignment(restore.first(), restore.second());
     }
 
-    private int[][] createPrefixesCostsMatrix(String first, String second) {
-        int[][] dp = new int[first.length() + 1][second.length() + 1];
-        for (int i = 0; i <= first.length(); i++) dp[i][0] = scoring.gapPenalty() * i;
-        for (int i = 0; i <= second.length(); i++) dp[0][i] = scoring.gapPenalty() * i;
+    @Override
+    public long score(Alignment alignment) {
+        return scoring.score(alignment).score();
+    }
 
-        for (int i = 1; i <= first.length(); i++) {
-            for (int j = 1; j <= second.length(); j++) {
-                int match = dp[i - 1][j - 1] + match(first.charAt(i - 1), second.charAt(j - 1));
-                int delete = dp[i - 1][j] + scoring.gapPenalty();
-                int insert = dp[i][j - 1] + scoring.gapPenalty();
-                dp[i][j] = max(match, max(delete, insert));
-            }
+    @Override
+    public boolean isCostsFilled() {
+        return proceedCells.equals(costsArea);
+    }
+
+    @Override
+    public void fillNextCost() {
+        if (isCostsFilled()) throw new IllegalStateException();
+        dp[i][j] = computeCost();
+        advanceIterators();
+        proceedCells = proceedCells.add(BigInteger.ONE);
+    }
+
+    private int computeCost() {
+        if (i == 0) return scoring.gapPenalty() * j;
+        if (j == 0) return scoring.gapPenalty() * i;
+
+        int match = dp[i - 1][j - 1] + match(first.charAt(i - 1), second.charAt(j - 1));
+        int delete = dp[i - 1][j] + scoring.gapPenalty();
+        int insert = dp[i][j - 1] + scoring.gapPenalty();
+        return max(match, max(delete, insert));
+    }
+
+    private void advanceIterators() {
+        if (j < second.length()) j++;
+        else {
+            j = 0;
+            i++;
         }
-        return dp;
+    }
+
+    @Override
+    public int progress() {
+        return proceedCells.multiply(BigInteger.valueOf(100)).divide(costsArea).intValueExact();
+    }
+
+    @Override
+    public void clear() {
+        dp = null;
     }
 
     private Pair<String, String> restore(int[][] prefixesScores, String first, String second) {

@@ -3,9 +3,9 @@ package me.wbars.aliseq.core;
 public class Score {
     private final int gapsCount;
     private final int sameCharsCount;
-    private final int score;
+    private final long score;
 
-    public Score(int sameCharsCount, int gapsCount, int score) {
+    public Score(int sameCharsCount, int gapsCount, long score) {
         this.gapsCount = gapsCount;
         this.sameCharsCount = sameCharsCount;
         this.score = score;
@@ -19,7 +19,9 @@ public class Score {
         return sameCharsCount;
     }
 
-    public int score() {
+    public long score() {
         return score;
     }
+
+
 }

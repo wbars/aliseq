@@ -5,6 +5,7 @@ import me.wbars.aliseq.utils.StringUtils;
 import static java.lang.String.format;
 
 public class Alignment {
+    public static final Alignment EMPTY = new Alignment("", "");
     private final String first;
     private final String second;
 

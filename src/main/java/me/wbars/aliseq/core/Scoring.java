@@ -37,8 +37,8 @@ public class Scoring {
         );
     }
 
-    private int score(String firstAlignment, int gapsCount, int sameCharsCount) {
-        int differentChars = firstAlignment.length() - sameCharsCount - gapsCount;
+    private long score(String firstAlignment, long gapsCount, long sameCharsCount) {
+        long differentChars = firstAlignment.length() - sameCharsCount - gapsCount;
         return -1 * (gapsCount * gapPenalty + differentChars * indelPenalty);
     }
 

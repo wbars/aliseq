@@ -9,7 +9,7 @@ public class ScoringTest {
     @Test
     public void score() throws Exception {
         Score score = Scoring.DEFAULT.score(new Alignment("GCA-TGCU", "G-ATTACA"));
-        assertThat(score.score(), is(4));
+        assertThat(score.score(), is(4L));
         assertThat(score.gapsCount(), is(2));
         assertThat(score.sameCharsCount(), is(4));
     }
@@ -22,6 +22,6 @@ public class ScoringTest {
                 .matchBonus(5)
                 .build();
         Alignment alignment = new Alignment("GCA-TGCU", "G-ATTACA");
-        assertThat(scoring.score(alignment).score(), is(10));
+        assertThat(scoring.score(alignment).score(), is(10L));
     }
 }
