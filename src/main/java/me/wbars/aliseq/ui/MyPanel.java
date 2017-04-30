@@ -99,7 +99,7 @@ public class MyPanel extends JPanel {
     }
 
     private void updateAlignmentText() {
-        if (alignmentWorker != null && !alignmentWorker.isDone()) alignmentWorker.cancel(true);
+        if (alignmentWorker != null && !alignmentWorker.isDone()) alignmentWorker.stop();
         alignmentAlgorithm = AlignmentAlgorithmFactory.createNWAlignment(trim(firstSeq.getText()), trim(secondSeq.getText()));
         alignmentWorker = new AlignmentWorker(alignmentAlgorithm, align -> {
             firstAlignment.setText(align.first());

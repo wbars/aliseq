@@ -5,11 +5,7 @@ public interface AlignmentAlgorithm {
 
     long score(Alignment align);
 
-    boolean isCostsFilled();
+    void stop();
 
-    void fillNextCost();
-
-    int progress();
-
-    void clear();
+    void setListener(AlignmentListener listener);
 }

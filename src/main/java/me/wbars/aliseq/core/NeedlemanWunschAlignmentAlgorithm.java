@@ -12,10 +12,10 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
     private final String first;
     private final String second;
     private int[][] dp;
-    private int i = 0;
-    private int j = 0;
     private final BigInteger costsArea;
     private BigInteger proceedCells = BigInteger.ZERO;
+    private AlignmentListener listener;
+    private volatile boolean stop;
 
     public NeedlemanWunschAlignmentAlgorithm(String first, String second, Scoring scoring) {
         this.scoring = scoring;
@@ -27,10 +27,25 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
 
     @Override
     public Alignment align() {
-        if (!isCostsFilled()) throw new IllegalStateException();
+        fillPrefixesCostsMatrix();
+        if (stop) return Alignment.EMPTY;
 
-        Pair<String, String> restore = restore(dp, first, second);
+        Pair<String, String> restore = restore();
         return new Alignment(restore.first(), restore.second());
+    }
+
+    private void fillPrefixesCostsMatrix() {
+        for (int i = 0; i <= first.length(); i++) {
+            for (int j = 0; j <= second.length(); j++) {
+                if (stop) {
+                    dp = null;
+                    return;
+                }
+                dp[i][j] = computeCost(i, j);
+                proceedCells = proceedCells.add(BigInteger.ONE);
+                if (listener != null) listener.consume(progress());
+            }
+        }
     }
 
     @Override
@@ -38,20 +53,7 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
         return scoring.score(alignment).score();
     }
 
-    @Override
-    public boolean isCostsFilled() {
-        return proceedCells.equals(costsArea);
-    }
-
-    @Override
-    public void fillNextCost() {
-        if (isCostsFilled()) throw new IllegalStateException();
-        dp[i][j] = computeCost();
-        advanceIterators();
-        proceedCells = proceedCells.add(BigInteger.ONE);
-    }
-
-    private int computeCost() {
+    private int computeCost(int i, int j) {
         if (i == 0) return scoring.gapPenalty() * j;
         if (j == 0) return scoring.gapPenalty() * i;
 
@@ -61,38 +63,29 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
         return max(match, max(delete, insert));
     }
 
-    private void advanceIterators() {
-        if (j < second.length()) j++;
-        else {
-            j = 0;
-            i++;
-        }
-    }
-
-    @Override
-    public int progress() {
+    private int progress() {
         return proceedCells.multiply(BigInteger.valueOf(100)).divide(costsArea).intValueExact();
     }
 
     @Override
-    public void clear() {
-        dp = null;
+    public void stop() {
+        stop = true;
     }
 
-    private Pair<String, String> restore(int[][] prefixesScores, String first, String second) {
+    private Pair<String, String> restore() {
         StringBuilder firstAlignment = new StringBuilder();
         StringBuilder secondAlignment = new StringBuilder();
         int i = first.length();
         int j = second.length();
 
         while (i > 0 || j > 0) {
-            if (i > 0 && j > 0 && prefixesScores[i][j] == prefixesScores[i - 1][j - 1] + match(first.charAt(i - 1), second.charAt(j - 1))) {
+            if (i > 0 && j > 0 && dp[i][j] == dp[i - 1][j - 1] + match(first.charAt(i - 1), second.charAt(j - 1))) {
                 firstAlignment.append(first.charAt(i - 1));
                 secondAlignment.append(second.charAt(j - 1));
 
                 i--;
                 j--;
-            } else if (i > 0 && prefixesScores[i - 1][j] - 1 == prefixesScores[i][j]) {
+            } else if (i > 0 && dp[i - 1][j] - 1 == dp[i][j]) {
                 firstAlignment.append(first.charAt(i - 1));
                 secondAlignment.append("-");
 
@@ -109,5 +102,10 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
 
     private int match(char c, char c1) {
         return c == c1 ? scoring.matchBonus() : scoring.indelPenalty();
+    }
+
+    @Override
+    public void setListener(AlignmentListener listener) {
+        this.listener = listener;
     }
 }

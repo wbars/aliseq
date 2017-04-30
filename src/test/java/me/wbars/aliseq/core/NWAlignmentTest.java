@@ -10,7 +10,6 @@ public class NWAlignmentTest {
     @Test
     public void simpleAlignment() throws Exception {
         AlignmentAlgorithm nwAlignment = AlignmentAlgorithmFactory.createNWAlignment("GCATGCU", "GATTACA");
-        fillCostTable(nwAlignment);
         Alignment alignment = nwAlignment.align();
 
         assertThat(alignment.first(), is("GCA-TGCU"));
@@ -20,14 +19,9 @@ public class NWAlignmentTest {
     @Test
     public void differentLengthAlignment() throws Exception {
         AlignmentAlgorithm nwAlignment = AlignmentAlgorithmFactory.createNWAlignment("ACTTG", "TGA");
-        fillCostTable(nwAlignment);
         Alignment alignment = nwAlignment.align();
 
         assertThat(alignment.first(), is("ACTTG-"));
         assertThat(alignment.second(), is("---TGA"));
-    }
-
-    private void fillCostTable(AlignmentAlgorithm algorithm) {
-        while (!algorithm.isCostsFilled()) algorithm.fillNextCost();
     }
 }

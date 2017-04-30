@@ -2,30 +2,24 @@ package me.wbars.aliseq.ui;
 
 import me.wbars.aliseq.core.Alignment;
 import me.wbars.aliseq.core.AlignmentAlgorithm;
+import me.wbars.aliseq.core.AlignmentListener;
 
 import javax.swing.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
-public class AlignmentWorker extends SwingWorker<Alignment, Object> {
+public class AlignmentWorker extends SwingWorker<Alignment, Object> implements AlignmentListener {
     private final AlignmentAlgorithm alignmentAlgorithm;
     private final Consumer<Alignment> callback;
 
     public AlignmentWorker(AlignmentAlgorithm alignmentAlgorithm, Consumer<Alignment> callback) {
         this.alignmentAlgorithm = alignmentAlgorithm;
         this.callback = callback;
+        this.alignmentAlgorithm.setListener(this);
     }
 
     @Override
     protected Alignment doInBackground() throws Exception {
-        while (!alignmentAlgorithm.isCostsFilled() && !isCancelled()) {
-            alignmentAlgorithm.fillNextCost();
-            setProgress(alignmentAlgorithm.progress());
-        }
-        if (isCancelled()) {
-            alignmentAlgorithm.clear();
-            return Alignment.EMPTY;
-        }
         return alignmentAlgorithm.align();
     }
 
@@ -41,4 +35,13 @@ public class AlignmentWorker extends SwingWorker<Alignment, Object> {
     }
 
 
+    @Override
+    public void consume(int progress) {
+        setProgress(progress);
+    }
+
+    public void stop() {
+        alignmentAlgorithm.stop();
+        cancel(true);
+    }
 }
