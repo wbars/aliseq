@@ -19,10 +19,14 @@ public class NeedlemanWunschAlignmentAlgorithm implements AlignmentAlgorithm {
 
     public NeedlemanWunschAlignmentAlgorithm(String first, String second, Scoring scoring) {
         this.scoring = scoring;
-        this.first = first;
-        this.second = second;
+        this.first = removeSpaces(first);
+        this.second = removeSpaces(second);
         this.dp = new int[first.length() + 1][second.length() + 1];
         costsArea = BigInteger.valueOf(dp.length).multiply(BigInteger.valueOf(dp[0].length));
+    }
+
+    private static String removeSpaces(String s) {
+        return s.replaceAll("\\s+", "");
     }
 
     @Override

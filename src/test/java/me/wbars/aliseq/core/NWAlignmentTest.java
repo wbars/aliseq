@@ -24,4 +24,13 @@ public class NWAlignmentTest {
         assertThat(alignment.first(), is("ACTTG-"));
         assertThat(alignment.second(), is("---TGA"));
     }
+
+    @Test
+    public void inputWithSpaces() throws Exception {
+        AlignmentAlgorithm nwAlignment = AlignmentAlgorithmFactory.createNWAlignment("A    CTT G", "   TG  A   ");
+        Alignment alignment = nwAlignment.align();
+
+        assertThat(alignment.first(), is("ACTTG-"));
+        assertThat(alignment.second(), is("---TGA"));
+    }
 }
