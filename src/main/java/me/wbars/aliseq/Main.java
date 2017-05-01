@@ -13,9 +13,11 @@ public class Main {
     private static void createAndShowGUI() {
         JFrame mainFrame = new JFrame();
         mainFrame.setLayout(new BorderLayout());
-        mainFrame.add(new MyPanel(), BorderLayout.CENTER);
+        MyPanel myPanel = new MyPanel();
+        mainFrame.add(myPanel, BorderLayout.CENTER);
         mainFrame.setSize(new Dimension(600, 480));
         mainFrame.setVisible(true);
+        mainFrame.setJMenuBar(myPanel.menuBar);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 }

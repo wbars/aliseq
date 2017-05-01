@@ -7,10 +7,17 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static java.lang.String.format;
 
 public class MyPanel extends JPanel {
+    private JMenu menu = new JMenu("File");
+    private JMenuItem menuExportAlignment = new JMenuItem("Export alignment");
+    public final JMenuBar menuBar = new JMenuBar();
 
     private JCheckBox autoAlignCheckBox = new JCheckBox("Auto align");
     private JPanel autoAlignPanel = new JPanel();
@@ -27,6 +34,7 @@ public class MyPanel extends JPanel {
     private JButton autoAlignButton = new JButton("Align");
 
     public MyPanel() {
+        initMenu();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(largeRigid());
@@ -35,6 +43,51 @@ public class MyPanel extends JPanel {
         add(largeRigid());
         add(new OutputPanel());
         add(largeRigid());
+    }
+
+    private void initMenu() {
+        menu.add(menuExportAlignment);
+        menuBar.add(menu);
+
+        menuExportAlignment.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setApproveButtonText("Save");
+            int result = fileChooser.showSaveDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) return;
+            writeAlignmentsToFile(fileChooser.getSelectedFile() + ".txt");
+        });
+    }
+
+    private void writeAlignmentsToFile(String pathname) {
+        File fileName = new File(pathname);
+        BufferedWriter outFile = null;
+        try {
+            outFile = new BufferedWriter(new FileWriter(fileName));
+            outFile.write(alignmentInfo());
+            outFile.flush();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (outFile != null) {
+                try {
+                    outFile.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private String alignmentInfo() {
+        return String.format("First sequence: %n " +
+                "%s %n " +
+                "Second sequence: %n" +
+                "%s %n%n" +
+                "Alignment: %n" +
+                "First: %n" +
+                "%s %n" +
+                "Second: %n" +
+                "%s %n%n" +
+                "%s", firstSeq.getText(), secondSeq.getText(), firstAlignment.getText(), secondAlignment.getText(), score.getText());
     }
 
     private Component largeRigid() {
