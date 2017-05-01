@@ -12,6 +12,8 @@ import static java.lang.String.format;
 
 public class MyPanel extends JPanel {
 
+    private JCheckBox autoAlignCheckBox = new JCheckBox("Auto align");
+    private JPanel autoAlignPanel = new JPanel();
     private JProgressBar progress = new JProgressBar();
     private JLabel score = createCenteredLabel(null);
     private JLabel firstAlignment = createCenteredLabel(null);
@@ -22,6 +24,7 @@ public class MyPanel extends JPanel {
 
     private AlignmentAlgorithm alignmentAlgorithm;
     private AlignmentWorker alignmentWorker;
+    private JButton autoAlignButton = new JButton("Align");
 
     public MyPanel() {
 
@@ -40,8 +43,11 @@ public class MyPanel extends JPanel {
 
     private class OutputPanel extends JPanel {
         OutputPanel() {
+            initAutoAlignPanel(autoAlignPanel);
             setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+            add(autoAlignPanel);
+            add(smallRigid());
             add(createCenteredLabel("Alignment:"));
             add(smallRigid());
             add(progress);
@@ -51,6 +57,18 @@ public class MyPanel extends JPanel {
             add(secondAlignment);
             add(smallRigid());
             add(score);
+        }
+
+        private void initAutoAlignPanel(JPanel autoAlignPanel) {
+            autoAlignPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+            autoAlignPanel.add(autoAlignCheckBox);
+            autoAlignPanel.add(autoAlignButton);
+            autoAlignButton.setVisible(false);
+            autoAlignCheckBox.setSelected(true);
+
+            autoAlignCheckBox.addActionListener(it -> autoAlignButton.setVisible(!autoAlignCheckBox.isSelected()));
+            autoAlignButton.addActionListener(it -> updateAlignmentText());
         }
     }
 
@@ -84,12 +102,12 @@ public class MyPanel extends JPanel {
     private class UpdateAlignmentTextListener implements DocumentListener {
         @Override
         public void insertUpdate(DocumentEvent e) {
-            updateAlignmentText();
+            if (autoAlignCheckBox.isSelected()) updateAlignmentText();
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            updateAlignmentText();
+            if (autoAlignCheckBox.isSelected()) updateAlignmentText();
         }
 
         @Override
