@@ -1,6 +1,6 @@
 package me.wbars.aliseq;
 
-import me.wbars.aliseq.ui.MyPanel;
+import me.wbars.aliseq.ui.MainPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,11 +13,11 @@ public class Main {
     private static void createAndShowGUI() {
         JFrame mainFrame = new JFrame();
         mainFrame.setLayout(new BorderLayout());
-        MyPanel myPanel = new MyPanel();
-        mainFrame.add(myPanel, BorderLayout.CENTER);
+        MainPanel mainPanel = new MainPanel();
+        mainFrame.add(mainPanel, BorderLayout.CENTER);
         mainFrame.setSize(new Dimension(600, 480));
         mainFrame.setVisible(true);
-        mainFrame.setJMenuBar(myPanel.menuBar);
+        mainFrame.setJMenuBar(mainPanel.menuBar);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 }

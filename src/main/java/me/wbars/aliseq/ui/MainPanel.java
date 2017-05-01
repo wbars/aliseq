@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 
-public class MyPanel extends JPanel {
+public class MainPanel extends JPanel {
     private JMenu menu = new JMenu("File");
     private JMenuItem menuExportAlignment = new JMenuItem("Export alignment");
     public final JMenuBar menuBar = new JMenuBar();
@@ -33,7 +33,7 @@ public class MyPanel extends JPanel {
     private AlignmentWorker alignmentWorker;
     private JButton autoAlignButton = new JButton("Align");
 
-    public MyPanel() {
+    public MainPanel() {
         initMenu();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
